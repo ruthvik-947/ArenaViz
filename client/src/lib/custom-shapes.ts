@@ -56,7 +56,7 @@ export class CardUtil extends BaseBoxShapeUtil<CardShape> {
             />
           </div>
         )}
-        <h3 style={{ 
+        <h3 style={{
           margin: 0,
           fontSize: '16px',
           fontWeight: 600,
