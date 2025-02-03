@@ -32,12 +32,30 @@ export function registerRoutes(app: Express): Server {
 
     if (error) {
       console.error('OAuth error:', error, error_description);
-      return res.status(400).send(`Authorization failed: ${error_description || error}`);
+      const errorHtml = `
+        <script>
+          window.opener.postMessage({ 
+            type: 'ARENA_AUTH_ERROR',
+            error: '${error_description || error}'
+          }, '*');
+          window.close();
+        </script>
+      `;
+      return res.send(errorHtml);
     }
 
     if (!code || typeof code !== 'string') {
       console.error('No valid code provided');
-      return res.status(400).send("No authorization code provided");
+      const errorHtml = `
+        <script>
+          window.opener.postMessage({ 
+            type: 'ARENA_AUTH_ERROR',
+            error: 'No authorization code provided'
+          }, '*');
+          window.close();
+        </script>
+      `;
+      return res.send(errorHtml);
     }
 
     try {
@@ -51,7 +69,17 @@ export function registerRoutes(app: Express): Server {
       `);
     } catch (error) {
       console.error('Token exchange error:', error);
-      res.status(500).send(`Authentication failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorHtml = `
+        <script>
+          window.opener.postMessage({ 
+            type: 'ARENA_AUTH_ERROR',
+            error: ${JSON.stringify(errorMessage)}
+          }, '*');
+          window.close();
+        </script>
+      `;
+      res.send(errorHtml);
     }
   });
 
@@ -72,34 +100,6 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error('Logout error:', error);
       res.status(500).send("Failed to logout");
-    }
-  });
-
-  app.get("/api/arena/channel/:id", async (req, res) => {
-    const token = await getLatestToken();
-    if (!token) {
-      return res.status(401).send("Not authenticated");
-    }
-
-    try {
-      const response = await fetch(
-        `https://api.are.na/v2/channels/${req.params.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        return res.status(response.status).send(response.statusText);
-      }
-
-      const data = await response.json();
-      res.json(data);
-    } catch (error) {
-      console.error('Channel fetch error:', error);
-      res.status(500).send("Failed to fetch channel data");
     }
   });
 
