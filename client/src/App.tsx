@@ -6,10 +6,6 @@ import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
 import { ArenaAuthProvider } from "@/hooks/use-arena-auth";
-import { Tldraw, TldrawEditor } from "@tldraw/tldraw"
-import { CardUtil } from "./lib/custom-shapes"
-
-TldrawEditor.registerShapeType(CardUtil)
 
 function Router() {
   return (

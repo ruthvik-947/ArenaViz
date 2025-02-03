@@ -1,9 +1,9 @@
-
-import { Tldraw, Editor, createShape, TLShape } from "@tldraw/tldraw";
+import { Tldraw, Editor } from "@tldraw/tldraw";
 import "@tldraw/tldraw/tldraw.css";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { useCallback } from "react";
+import { CardUtil } from "@/lib/custom-shapes";
 
 interface ChannelContent {
   id: string;
@@ -22,13 +22,13 @@ export function ChannelCanvas({ channelId }: { channelId?: string }) {
     enabled: !!channelId,
   });
 
-  const handleMount = (editor: Editor) => {
+  const handleMount = useCallback((editor: Editor) => {
     if (!channel?.contents) return;
-    
+
     channel.contents.forEach((content, index) => {
       const x = (index % 3) * 300 + 100;
       const y = Math.floor(index / 3) * 300 + 100;
-      
+
       editor.createShape({
         type: 'card',
         x,
@@ -42,7 +42,7 @@ export function ChannelCanvas({ channelId }: { channelId?: string }) {
         },
       });
     });
-  };
+  }, [channel?.contents]);
 
   if (isLoading) {
     return (
@@ -62,7 +62,10 @@ export function ChannelCanvas({ channelId }: { channelId?: string }) {
 
   return (
     <div className="h-full">
-      <Tldraw onMount={handleMount} />
+      <Tldraw 
+        onMount={handleMount}
+        shapeUtils={[CardUtil]}
+      />
     </div>
   );
 }
