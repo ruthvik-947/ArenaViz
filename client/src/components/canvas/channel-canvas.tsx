@@ -17,7 +17,7 @@ interface Channel {
 
 export function ChannelCanvas({ channelId }: { channelId?: string }) {
   const { data: channel, isLoading } = useQuery<Channel>({
-    queryKey: ["/api/arena/channel", channelId],
+    queryKey: [`/api/arena/channel/${channelId}/contents`],
     enabled: !!channelId,
   });
 
