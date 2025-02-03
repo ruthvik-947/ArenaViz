@@ -32,9 +32,6 @@ export function ChannelCanvas({ channelId }: { channelId?: string }) {
       const x = (index % 3) * 300 + 100;
       const y = Math.floor(index / 3) * 300 + 100;
 
-      // Extract text content if available
-      const textContent = content.content || '';
-
       console.log('Processing content item:', {
         id: content.id,
         title: content.title,
@@ -48,8 +45,8 @@ export function ChannelCanvas({ channelId }: { channelId?: string }) {
         x,
         y,
         props: {
-          title: content.title || textContent.slice(0, 50) || 'Untitled',
-          description: content.description || textContent || '',
+          title: content.title || (content.content ? content.content.slice(0, 50) + '...' : 'Untitled'),
+          description: content.content || content.description || '',
           imageUrl: content.image_url,
           w: 250,
           h: content.image_url ? 320 : 160,
