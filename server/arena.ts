@@ -4,7 +4,10 @@ import { eq } from "drizzle-orm";
 
 const ARENA_CLIENT_ID = process.env.ARENA_CLIENT_ID;
 const ARENA_CLIENT_SECRET = process.env.ARENA_CLIENT_SECRET;
-const REDIRECT_URI = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/arena/callback`;
+// Update the redirect URI to use the correct Replit domain format
+const REDIRECT_URI = process.env.REPL_ID 
+  ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/arena/callback`
+  : 'http://localhost:5000/api/arena/callback';
 
 export async function getArenaAuthUrl() {
   const url = new URL("https://dev.are.na/oauth/authorize");
@@ -28,11 +31,12 @@ export async function exchangeCodeForToken(code: string) {
   });
 
   if (!res.ok) {
-    throw new Error("Failed to exchange code for token");
+    const errorText = await res.text();
+    throw new Error(`Failed to exchange code for token: ${errorText}`);
   }
 
   const data = await res.json();
-  
+
   await db.insert(arenaTokens).values({
     accessToken: data.access_token,
     refreshToken: data.refresh_token,
@@ -47,7 +51,7 @@ export async function getLatestToken() {
     .from(arenaTokens)
     .orderBy(arenaTokens.createdAt)
     .limit(1);
-    
+
   return token?.accessToken;
 }
 
