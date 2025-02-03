@@ -45,7 +45,7 @@ export function ChannelCanvas({ channelId }: { channelId?: string }) {
         x,
         y,
         props: {
-          title: content.title || (content.content ? content.content.slice(0, 50) + '...' : 'Untitled'),
+          title: content.title || content.content?.slice(0, 50) || 'Untitled',
           description: content.content || content.description || '',
           imageUrl: content.image_url,
           w: 250,
