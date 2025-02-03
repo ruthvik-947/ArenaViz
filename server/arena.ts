@@ -4,10 +4,13 @@ import { eq } from "drizzle-orm";
 
 const ARENA_CLIENT_ID = process.env.ARENA_CLIENT_ID;
 const ARENA_CLIENT_SECRET = process.env.ARENA_CLIENT_SECRET;
-// Update the redirect URI to use the correct Replit domain format
-const REDIRECT_URI = process.env.REPL_ID 
-  ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/arena/callback`
-  : 'http://localhost:5000/api/arena/callback';
+
+// Get the base URL from the environment or use localhost for development
+const BASE_URL = process.env.REPL_SLUG 
+  ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
+  : 'http://localhost:5000';
+
+const REDIRECT_URI = `${BASE_URL}/api/arena/callback`;
 
 export async function getArenaAuthUrl() {
   const url = new URL("https://dev.are.na/oauth/authorize");
@@ -18,6 +21,8 @@ export async function getArenaAuthUrl() {
 }
 
 export async function exchangeCodeForToken(code: string) {
+  console.log('Attempting to exchange code for token with redirect URI:', REDIRECT_URI);
+
   const res = await fetch("https://dev.are.na/oauth/token", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -32,10 +37,12 @@ export async function exchangeCodeForToken(code: string) {
 
   if (!res.ok) {
     const errorText = await res.text();
+    console.error('Token exchange failed:', errorText);
     throw new Error(`Failed to exchange code for token: ${errorText}`);
   }
 
   const data = await res.json();
+  console.log('Successfully received token response');
 
   await db.insert(arenaTokens).values({
     accessToken: data.access_token,

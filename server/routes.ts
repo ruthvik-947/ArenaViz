@@ -2,17 +2,21 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { getArenaAuthUrl, exchangeCodeForToken, getLatestToken, deleteToken } from "./arena";
 
+const BASE_URL = process.env.REPL_SLUG 
+  ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
+  : 'http://localhost:5000';
+
 export function registerRoutes(app: Express): Server {
   app.get("/api/arena/redirect-uri", (req, res) => {
-    const redirectUri = process.env.REPL_ID 
-      ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/arena/callback`
-      : 'http://localhost:5000/api/arena/callback';
+    const redirectUri = `${BASE_URL}/api/arena/callback`;
+    console.log('Providing redirect URI:', redirectUri);
     res.json({ redirectUri });
   });
 
   app.get("/api/arena/auth", async (req, res) => {
     try {
       const url = await getArenaAuthUrl();
+      console.log('Redirecting to Are.na auth URL:', url);
       res.redirect(url);
     } catch (error) {
       console.error('Auth URL generation error:', error);
@@ -27,6 +31,7 @@ export function registerRoutes(app: Express): Server {
     }
 
     try {
+      console.log('Received callback with code');
       await exchangeCodeForToken(code as string);
       res.send(`
         <script>
