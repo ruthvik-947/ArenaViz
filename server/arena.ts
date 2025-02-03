@@ -5,12 +5,9 @@ import { eq } from "drizzle-orm";
 const ARENA_CLIENT_ID = process.env.ARENA_CLIENT_ID;
 const ARENA_CLIENT_SECRET = process.env.ARENA_CLIENT_SECRET;
 
-// Get the base URL from the environment or use localhost for development
-const BASE_URL = process.env.REPL_SLUG 
-  ? `https://${process.env.REPL_SLUG}.replit.app`
-  : 'http://localhost:5000';
-
-const REDIRECT_URI = new URL('/api/arena/callback', BASE_URL).toString();
+// Use the exact domain registered with Are.na
+const BASE_URL = "https://arena-channel-graph.replit.app";
+const REDIRECT_URI = `${BASE_URL}/api/arena/callback`;
 console.log('Configured redirect URI:', REDIRECT_URI);
 
 export async function getArenaAuthUrl() {

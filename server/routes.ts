@@ -2,9 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { getArenaAuthUrl, exchangeCodeForToken, getLatestToken, deleteToken } from "./arena";
 
-const BASE_URL = process.env.REPL_SLUG 
-  ? `https://arena-channel-graph.replit.app`
-  : 'http://localhost:5000';
+// Use the same base URL as in arena.ts
+const BASE_URL = "https://arena-channel-graph.replit.app";
 
 export function registerRoutes(app: Express): Server {
   app.get("/api/arena/redirect-uri", (req, res) => {
