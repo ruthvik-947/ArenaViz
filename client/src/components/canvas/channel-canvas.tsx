@@ -9,6 +9,7 @@ interface ChannelContent {
   id: string;
   title: string;
   description: string;
+  content: string;
   image_url?: string | null;
 }
 
@@ -25,15 +26,20 @@ export function ChannelCanvas({ channelId }: { channelId?: string }) {
   const handleMount = useCallback((editor: Editor) => {
     if (!channel?.contents) return;
 
-    console.log('Channel contents:', channel.contents);
+    console.log('Full channel response:', JSON.stringify(channel, null, 2));
 
     channel.contents.forEach((content, index) => {
       const x = (index % 3) * 300 + 100;
       const y = Math.floor(index / 3) * 300 + 100;
 
-      console.log('Creating shape with content:', {
+      // Extract text content if available
+      const textContent = content.content || '';
+
+      console.log('Processing content item:', {
+        id: content.id,
         title: content.title,
         description: content.description,
+        content: content.content,
         imageUrl: content.image_url
       });
 
@@ -42,8 +48,8 @@ export function ChannelCanvas({ channelId }: { channelId?: string }) {
         x,
         y,
         props: {
-          title: content.title || 'Untitled',
-          description: content.description || '',
+          title: content.title || textContent.slice(0, 50) || 'Untitled',
+          description: content.description || textContent || '',
           imageUrl: content.image_url,
           w: 250,
           h: content.image_url ? 320 : 160,
