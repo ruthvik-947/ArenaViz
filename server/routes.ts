@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { getArenaAuthUrl, exchangeCodeForToken, getLatestToken, deleteToken } from "./arena";
 
 const BASE_URL = process.env.REPL_SLUG 
-  ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
+  ? `https://arena-channel-graph.replit.app`
   : 'http://localhost:5000';
 
 export function registerRoutes(app: Express): Server {

@@ -7,7 +7,7 @@ const ARENA_CLIENT_SECRET = process.env.ARENA_CLIENT_SECRET;
 
 // Get the base URL from the environment or use localhost for development
 const BASE_URL = process.env.REPL_SLUG 
-  ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
+  ? `https://arena-channel-graph.replit.app`
   : 'http://localhost:5000';
 
 const REDIRECT_URI = `${BASE_URL}/api/arena/callback`;
