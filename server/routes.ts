@@ -3,6 +3,11 @@ import { createServer, type Server } from "http";
 import { getArenaAuthUrl, exchangeCodeForToken, getLatestToken, deleteToken } from "./arena";
 
 export function registerRoutes(app: Express): Server {
+  app.get("/api/arena/redirect-uri", (req, res) => {
+    const redirectUri = `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/arena/callback`;
+    res.json({ redirectUri });
+  });
+
   app.get("/api/arena/auth", async (req, res) => {
     const url = await getArenaAuthUrl();
     res.redirect(url);
