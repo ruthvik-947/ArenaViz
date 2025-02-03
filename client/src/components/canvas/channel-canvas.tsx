@@ -1,8 +1,9 @@
-import { Tldraw, Editor } from "@tldraw/tldraw";
+
+import { Tldraw, Editor, createShape, TLShape } from "@tldraw/tldraw";
 import "@tldraw/tldraw/tldraw.css";
 import { useQuery } from "@tanstack/react-query";
-import { ContentCard } from "./content-card";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 
 interface ChannelContent {
   id: string;
@@ -20,6 +21,28 @@ export function ChannelCanvas({ channelId }: { channelId?: string }) {
     queryKey: [`/api/arena/channel/${channelId}/contents`],
     enabled: !!channelId,
   });
+
+  const handleMount = (editor: Editor) => {
+    if (!channel?.contents) return;
+    
+    channel.contents.forEach((content, index) => {
+      const x = (index % 3) * 300 + 100;
+      const y = Math.floor(index / 3) * 300 + 100;
+      
+      editor.createShape({
+        type: 'card',
+        x,
+        y,
+        props: {
+          title: content.title || 'Untitled',
+          description: content.description || '',
+          imageUrl: content.image_url,
+          w: 250,
+          h: content.image_url ? 320 : 160,
+        },
+      });
+    });
+  };
 
   if (isLoading) {
     return (
@@ -39,17 +62,7 @@ export function ChannelCanvas({ channelId }: { channelId?: string }) {
 
   return (
     <div className="h-full">
-      <Tldraw>
-        <div className="absolute inset-0">
-          {channel?.contents?.map((content, index) => (
-            <ContentCard
-              key={content.id}
-              content={content}
-              position={{ x: index * 300, y: Math.floor(index / 3) * 300 }}
-            />
-          ))}
-        </div>
-      </Tldraw>
+      <Tldraw onMount={handleMount} />
     </div>
   );
 }
