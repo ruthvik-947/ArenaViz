@@ -25,9 +25,17 @@ export function ChannelCanvas({ channelId }: { channelId?: string }) {
   const handleMount = useCallback((editor: Editor) => {
     if (!channel?.contents) return;
 
+    console.log('Channel contents:', channel.contents);
+
     channel.contents.forEach((content, index) => {
       const x = (index % 3) * 300 + 100;
       const y = Math.floor(index / 3) * 300 + 100;
+
+      console.log('Creating shape with content:', {
+        title: content.title,
+        description: content.description,
+        imageUrl: content.image_url
+      });
 
       editor.createShape({
         type: 'card',

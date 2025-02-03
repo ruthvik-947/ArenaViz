@@ -30,6 +30,8 @@ export class CardUtil extends BaseBoxShapeUtil<CardShape> {
   component = (shape: CardShape): JSX.Element => {
     const { title, description, imageUrl, w, h } = shape.props
 
+    console.log('Rendering card with props:', { title, description, imageUrl, w, h });
+
     const containerStyle: React.CSSProperties = {
       width: w,
       height: h,
@@ -63,6 +65,7 @@ export class CardUtil extends BaseBoxShapeUtil<CardShape> {
       display: '-webkit-box',
       WebkitLineClamp: 2,
       WebkitBoxOrient: 'vertical',
+      color: '#000',
     }
 
     const descriptionStyle: React.CSSProperties = {
@@ -80,7 +83,7 @@ export class CardUtil extends BaseBoxShapeUtil<CardShape> {
       imageUrl && React.createElement('div', { style: imageContainerStyle },
         React.createElement('img', { src: imageUrl, alt: title, style: imageStyle })
       ),
-      React.createElement('h3', { style: titleStyle }, title),
+      React.createElement('h3', { style: titleStyle }, title || 'Untitled'),
       description && React.createElement('p', { style: descriptionStyle }, description)
     )
   }
