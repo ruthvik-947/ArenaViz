@@ -139,7 +139,7 @@ export function registerRoutes(app: Express): Server {
       const contents = data.contents.map((content: any) => ({
         id: content.id,
         title: content.title || "",
-        description: content.description || "",
+        description: content.content || content.description || "",
         image_url: content.image?.display?.url || null,
       }));
 
