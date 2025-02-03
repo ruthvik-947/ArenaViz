@@ -10,20 +10,27 @@ const BASE_URL = process.env.REPL_SLUG
   ? `https://arena-channel-graph.replit.app`
   : 'http://localhost:5000';
 
-const REDIRECT_URI = `${BASE_URL}/api/arena/callback`;
+const REDIRECT_URI = new URL('/api/arena/callback', BASE_URL).toString();
 
 export async function getArenaAuthUrl() {
   const url = new URL("https://dev.are.na/oauth/authorize");
-  url.searchParams.set("client_id", ARENA_CLIENT_ID!);
-  url.searchParams.set("redirect_uri", REDIRECT_URI);
-  url.searchParams.set("response_type", "code");
-  return url.toString();
+  const params = new URLSearchParams({
+    client_id: ARENA_CLIENT_ID!,
+    redirect_uri: REDIRECT_URI,
+    response_type: "code"
+  });
+
+  const authUrl = `${url.toString()}?${params.toString()}`;
+  console.log('Generated auth URL:', authUrl);
+  console.log('Using redirect URI:', REDIRECT_URI);
+
+  return authUrl;
 }
 
 export async function exchangeCodeForToken(code: string) {
   console.log('Starting token exchange process');
   console.log('Using redirect URI:', REDIRECT_URI);
-  console.log('Code length:', code.length);
+  console.log('Code:', code.substring(0, 5) + '...');
 
   const tokenData = {
     client_id: ARENA_CLIENT_ID,
@@ -36,22 +43,29 @@ export async function exchangeCodeForToken(code: string) {
   console.log('Token request payload:', JSON.stringify({
     ...tokenData,
     client_secret: '[REDACTED]'
-  }));
+  }, null, 2));
 
   const res = await fetch("https://dev.are.na/oauth/token", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
     body: JSON.stringify(tokenData),
   });
 
+  const responseText = await res.text();
+  console.log('Token response status:', res.status);
+  console.log('Token response headers:', JSON.stringify(Object.fromEntries(res.headers.entries()), null, 2));
+
   if (!res.ok) {
-    const errorText = await res.text();
-    console.error('Token exchange failed. Status:', res.status);
-    console.error('Error response:', errorText);
-    throw new Error(`Failed to exchange code for token: ${errorText}`);
+    console.error('Token exchange failed');
+    console.error('Response status:', res.status);
+    console.error('Response text:', responseText);
+    throw new Error(`Failed to exchange code for token: ${responseText}`);
   }
 
-  const data = await res.json();
+  const data = JSON.parse(responseText);
   console.log('Successfully received token response');
 
   await db.insert(arenaTokens).values({
