@@ -1,6 +1,11 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { getArenaAuthUrl, exchangeCodeForToken, getLatestToken, deleteToken } from "./arena";
+import {
+  getArenaAuthUrl,
+  exchangeCodeForToken,
+  getLatestToken,
+  deleteToken,
+} from "./arena";
 import fetch from "node-fetch";
 
 // Use the same base URL as in arena.ts
@@ -9,29 +14,29 @@ const BASE_URL = "https://arena-channel-graph.replit.app";
 export function registerRoutes(app: Express): Server {
   app.get("/api/arena/redirect-uri", (req, res) => {
     const redirectUri = `${BASE_URL}/api/arena/callback`;
-    console.log('Providing redirect URI:', redirectUri);
+    console.log("Providing redirect URI:", redirectUri);
     res.json({ redirectUri });
   });
 
   app.get("/api/arena/auth", async (req, res) => {
     try {
       const url = await getArenaAuthUrl();
-      console.log('Redirecting to Are.na auth URL:', url);
+      console.log("Redirecting to Are.na auth URL:", url);
       res.redirect(url);
     } catch (error) {
-      console.error('Auth URL generation error:', error);
+      console.error("Auth URL generation error:", error);
       res.status(500).send("Failed to generate authentication URL");
     }
   });
 
   app.get("/api/arena/callback", async (req, res) => {
-    console.log('Received callback request');
-    console.log('Query parameters:', req.query);
+    console.log("Received callback request");
+    console.log("Query parameters:", req.query);
 
     const { code, error, error_description } = req.query;
 
     if (error) {
-      console.error('OAuth error:', error, error_description);
+      console.error("OAuth error:", error, error_description);
       const errorHtml = `
         <script>
           window.opener.postMessage({ 
@@ -44,8 +49,8 @@ export function registerRoutes(app: Express): Server {
       return res.send(errorHtml);
     }
 
-    if (!code || typeof code !== 'string') {
-      console.error('No valid code provided');
+    if (!code || typeof code !== "string") {
+      console.error("No valid code provided");
       const errorHtml = `
         <script>
           window.opener.postMessage({ 
@@ -59,7 +64,7 @@ export function registerRoutes(app: Express): Server {
     }
 
     try {
-      console.log('Attempting to exchange code for token');
+      console.log("Attempting to exchange code for token");
       await exchangeCodeForToken(code);
       res.send(`
         <script>
@@ -68,8 +73,9 @@ export function registerRoutes(app: Express): Server {
         </script>
       `);
     } catch (error) {
-      console.error('Token exchange error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error("Token exchange error:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       const errorHtml = `
         <script>
           window.opener.postMessage({ 
@@ -88,7 +94,7 @@ export function registerRoutes(app: Express): Server {
       const token = await getLatestToken();
       res.json(token);
     } catch (error) {
-      console.error('Token retrieval error:', error);
+      console.error("Token retrieval error:", error);
       res.status(500).send("Failed to retrieve token");
     }
   });
@@ -98,12 +104,12 @@ export function registerRoutes(app: Express): Server {
       await deleteToken();
       res.sendStatus(200);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       res.status(500).send("Failed to logout");
     }
   });
 
-  app.get("/api/arena/channel/:id?", async (req, res) => {
+  app.get("/api/arena/channel/:id?/contents", async (req, res) => {
     try {
       const token = await getLatestToken();
       if (!token) {
@@ -115,11 +121,14 @@ export function registerRoutes(app: Express): Server {
         return res.json({ contents: [] });
       }
 
-      const response = await fetch(`https://api.are.na/v2/channels/${channelId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `https://api.are.na/v2/channels/${channelId}/contents`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         throw new Error(`Arena API error: ${response.statusText}`);
