@@ -2,7 +2,7 @@ import { Tldraw, Editor } from "@tldraw/tldraw";
 import "@tldraw/tldraw/tldraw.css";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { CardUtil } from "@/lib/custom-shapes";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -41,12 +41,12 @@ export function ChannelCanvas({ channelId }: { channelId?: string }) {
   const { toast } = useToast();
 
   const { data: channel, isLoading: isLoadingChannel } = useQuery<Channel>({
-    queryKey: [`/api/arena/channel/${channelId}/contents`],
+    queryKey: ['/api/arena/channel', channelId, 'contents'],
     enabled: !!channelId,
   });
 
   const { data: canvasState, isLoading: isLoadingState } = useQuery<CanvasState>({
-    queryKey: [`/api/canvas/${channelId}/state`],
+    queryKey: ['/api/canvas', channelId, 'state'],
     enabled: !!channelId,
   });
 
@@ -103,7 +103,7 @@ export function ChannelCanvas({ channelId }: { channelId?: string }) {
 
     // Set up change handler to save state
     const handleChange = () => {
-      const shapes = editor.getShapes();
+      const shapes = Object.values(editor.store.allShapes());
       const camera = editor.getCamera();
 
       const blocks = shapes.map(shape => ({
@@ -129,7 +129,7 @@ export function ChannelCanvas({ channelId }: { channelId?: string }) {
     return () => {
       editor.off("change", handleChange);
     };
-  }, [channel?.contents, canvasState, channelId, saveStateMutation, toast]);
+  }, [channel?.contents, canvasState, channelId, saveStateMutation]);
 
   if (isLoadingChannel || isLoadingState) {
     return (
