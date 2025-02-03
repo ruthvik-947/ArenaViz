@@ -21,23 +21,33 @@ export async function getArenaAuthUrl() {
 }
 
 export async function exchangeCodeForToken(code: string) {
-  console.log('Attempting to exchange code for token with redirect URI:', REDIRECT_URI);
+  console.log('Starting token exchange process');
+  console.log('Using redirect URI:', REDIRECT_URI);
+  console.log('Code length:', code.length);
+
+  const tokenData = {
+    client_id: ARENA_CLIENT_ID,
+    client_secret: ARENA_CLIENT_SECRET,
+    code,
+    grant_type: "authorization_code",
+    redirect_uri: REDIRECT_URI,
+  };
+
+  console.log('Token request payload:', JSON.stringify({
+    ...tokenData,
+    client_secret: '[REDACTED]'
+  }));
 
   const res = await fetch("https://dev.are.na/oauth/token", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      client_id: ARENA_CLIENT_ID,
-      client_secret: ARENA_CLIENT_SECRET,
-      code,
-      grant_type: "authorization_code",
-      redirect_uri: REDIRECT_URI,
-    }),
+    body: JSON.stringify(tokenData),
   });
 
   if (!res.ok) {
     const errorText = await res.text();
-    console.error('Token exchange failed:', errorText);
+    console.error('Token exchange failed. Status:', res.status);
+    console.error('Error response:', errorText);
     throw new Error(`Failed to exchange code for token: ${errorText}`);
   }
 

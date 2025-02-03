@@ -25,14 +25,24 @@ export function registerRoutes(app: Express): Server {
   });
 
   app.get("/api/arena/callback", async (req, res) => {
-    const { code } = req.query;
-    if (!code) {
-      return res.status(400).send("No code provided");
+    console.log('Received callback request');
+    console.log('Query parameters:', req.query);
+
+    const { code, error, error_description } = req.query;
+
+    if (error) {
+      console.error('OAuth error:', error, error_description);
+      return res.status(400).send(`Authorization failed: ${error_description || error}`);
+    }
+
+    if (!code || typeof code !== 'string') {
+      console.error('No valid code provided');
+      return res.status(400).send("No authorization code provided");
     }
 
     try {
-      console.log('Received callback with code');
-      await exchangeCodeForToken(code as string);
+      console.log('Attempting to exchange code for token');
+      await exchangeCodeForToken(code);
       res.send(`
         <script>
           window.opener.postMessage({ type: 'ARENA_AUTH_SUCCESS' }, '*');
