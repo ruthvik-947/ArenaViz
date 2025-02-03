@@ -72,7 +72,7 @@ export async function exchangeCodeForToken(code: string) {
 
   await db.insert(arenaTokens).values({
     accessToken: data.access_token,
-    refreshToken: data.refresh_token,
+    refreshToken: data.refresh_token || null, // Handle case where refresh_token is not provided
   });
 
   return data.access_token;
