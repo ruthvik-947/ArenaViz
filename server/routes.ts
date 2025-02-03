@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { getArenaAuthUrl, exchangeCodeForToken, getLatestToken, deleteToken } from "./arena";
+import fetch from "node-fetch";
 
 // Use the same base URL as in arena.ts
 const BASE_URL = "https://arena-channel-graph.replit.app";
@@ -99,6 +100,44 @@ export function registerRoutes(app: Express): Server {
     } catch (error) {
       console.error('Logout error:', error);
       res.status(500).send("Failed to logout");
+    }
+  });
+
+  app.get("/api/arena/channel/:id?", async (req, res) => {
+    try {
+      const token = await getLatestToken();
+      if (!token) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      const channelId = req.params.id;
+      if (!channelId) {
+        return res.json({ contents: [] });
+      }
+
+      const response = await fetch(`https://api.are.na/v2/channels/${channelId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Arena API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      const contents = data.contents.map((content: any) => ({
+        id: content.id,
+        title: content.title || "",
+        description: content.description || "",
+        image_url: content.image?.display?.url || null,
+      }));
+
+      res.json({ contents });
+    } catch (error) {
+      console.error("Channel fetch error:", error);
+      res.status(500).json({ message: "Failed to fetch channel contents" });
     }
   });
 

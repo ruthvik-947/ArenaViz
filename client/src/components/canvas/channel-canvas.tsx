@@ -1,4 +1,5 @@
-import { Tldraw, TLUiOverrides } from "@tldraw/tldraw";
+import { Tldraw, Editor } from "@tldraw/tldraw";
+import "@tldraw/tldraw/tldraw.css";
 import { useQuery } from "@tanstack/react-query";
 import { ContentCard } from "./content-card";
 import { Loader2 } from "lucide-react";
@@ -7,7 +8,7 @@ interface ChannelContent {
   id: string;
   title: string;
   description: string;
-  image_url?: string;
+  image_url?: string | null;
 }
 
 interface Channel {
@@ -27,31 +28,18 @@ export function ChannelCanvas() {
     );
   }
 
-  const uiOverrides: TLUiOverrides = {
-    tools(editor, tools) {
-      return {
-        ...tools,
-        select: {
-          ...tools.select,
-          label: "Select & Move",
-        },
-      };
-    },
-  };
-
   return (
     <div className="h-full">
-      <Tldraw
-        persistenceKey="arena-channel"
-        uiOverrides={uiOverrides}
-      >
-        {channel?.contents?.map((content, index) => (
-          <ContentCard
-            key={content.id}
-            content={content}
-            position={{ x: index * 300, y: Math.floor(index / 3) * 300 }}
-          />
-        ))}
+      <Tldraw>
+        <div className="absolute inset-0">
+          {channel?.contents?.map((content, index) => (
+            <ContentCard
+              key={content.id}
+              content={content}
+              position={{ x: index * 300, y: Math.floor(index / 3) * 300 }}
+            />
+          ))}
+        </div>
       </Tldraw>
     </div>
   );
