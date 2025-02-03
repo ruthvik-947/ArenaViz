@@ -15,12 +15,15 @@ export async function getArenaAuthUrl() {
   const params = new URLSearchParams({
     client_id: ARENA_CLIENT_ID!,
     redirect_uri: REDIRECT_URI,
-    response_type: "code"
+    response_type: "code",
+    scope: "read write"  // Add explicit scope
   });
 
   const authUrl = `${url.toString()}?${params.toString()}`;
   console.log('Generated auth URL:', authUrl);
   console.log('Using redirect URI:', REDIRECT_URI);
+  console.log('Client ID configured:', !!ARENA_CLIENT_ID);
+  console.log('Client Secret configured:', !!ARENA_CLIENT_SECRET);
 
   return authUrl;
 }
