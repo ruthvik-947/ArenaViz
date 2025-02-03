@@ -15,15 +15,24 @@ interface Channel {
   contents: ChannelContent[];
 }
 
-export function ChannelCanvas() {
+export function ChannelCanvas({ channelId }: { channelId?: string }) {
   const { data: channel, isLoading } = useQuery<Channel>({
-    queryKey: ["/api/arena/channel"],
+    queryKey: ["/api/arena/channel", channelId],
+    enabled: !!channelId,
   });
 
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!channelId) {
+    return (
+      <div className="h-full flex items-center justify-center text-muted-foreground">
+        Enter a channel ID to view its contents
       </div>
     );
   }

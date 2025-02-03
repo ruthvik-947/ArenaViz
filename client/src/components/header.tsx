@@ -3,17 +3,21 @@ import { Input } from "@/components/ui/input";
 import { useArenaAuth } from "@/hooks/use-arena-auth";
 import { LogOut } from "lucide-react";
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 
-export function Header() {
+interface HeaderProps {
+  onChannelLoad: (channelId: string) => void;
+}
+
+export function Header({ onChannelLoad }: HeaderProps) {
   const { logout } = useArenaAuth();
-  const [channelId, setChannelId] = useState("");
-  const queryClient = useQueryClient();
+  const [channelInput, setChannelInput] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (channelId) {
-      queryClient.invalidateQueries({ queryKey: ["/api/arena/channel", channelId] });
+    if (channelInput) {
+      // Extract channel ID if a full URL is pasted
+      const channelId = channelInput.split("/").pop() || channelInput;
+      onChannelLoad(channelId);
     }
   };
 
@@ -21,12 +25,12 @@ export function Header() {
     <header className="border-b bg-card">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <h1 className="text-xl font-semibold">Are.na Channel Visualizer</h1>
-        
+
         <form onSubmit={handleSubmit} className="flex-1 max-w-md flex gap-2">
           <Input
             placeholder="Enter channel ID or URL"
-            value={channelId}
-            onChange={(e) => setChannelId(e.target.value)}
+            value={channelInput}
+            onChange={(e) => setChannelInput(e.target.value)}
           />
           <Button type="submit">Load</Button>
         </form>
