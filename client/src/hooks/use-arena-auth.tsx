@@ -35,26 +35,44 @@ export function ArenaAuthProvider({ children }: { children: ReactNode }) {
   });
 
   const startAuth = () => {
+    // Open the auth window and handle the response
     const width = 600;
     const height = 700;
     const left = window.screenX + (window.innerWidth - width) / 2;
     const top = window.screenY + (window.innerHeight - height) / 2;
 
-    window.open(
+    const authWindow = window.open(
       "/api/arena/auth",
       "arena-auth",
       `width=${width},height=${height},left=${left},top=${top}`
     );
 
-    window.addEventListener("message", (event) => {
+    // Add event listener for auth completion
+    const handleMessage = (event: MessageEvent) => {
       if (event.data.type === "ARENA_AUTH_SUCCESS") {
         queryClient.invalidateQueries({ queryKey: ["/api/arena/token"] });
         toast({
           title: "Authentication successful",
           description: "Successfully connected to Are.na",
         });
+      } else if (event.data.type === "ARENA_AUTH_ERROR") {
+        toast({
+          title: "Authentication failed",
+          description: event.data.error || "Failed to connect to Are.na",
+          variant: "destructive",
+        });
       }
-    });
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    // Clean up event listener when auth window closes
+    const checkClosed = setInterval(() => {
+      if (authWindow?.closed) {
+        clearInterval(checkClosed);
+        window.removeEventListener("message", handleMessage);
+      }
+    }, 500);
   };
 
   return (
