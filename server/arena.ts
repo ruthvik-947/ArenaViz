@@ -15,8 +15,7 @@ export async function getArenaAuthUrl() {
   const params = new URLSearchParams({
     client_id: ARENA_CLIENT_ID!,
     redirect_uri: REDIRECT_URI,
-    response_type: "code",
-    scope: "read"  // Changed scope to only "read"
+    response_type: "code"
   });
 
   const authUrl = `${url.toString()}?${params.toString()}`;
