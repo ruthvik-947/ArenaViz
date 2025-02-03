@@ -31,6 +31,8 @@ export async function exchangeCodeForToken(code: string) {
   console.log('Starting token exchange process');
   console.log('Using redirect URI:', REDIRECT_URI);
   console.log('Code:', code.substring(0, 5) + '...');
+  console.log('Client ID configured:', !!ARENA_CLIENT_ID);
+  console.log('Client Secret configured:', !!ARENA_CLIENT_SECRET);
 
   const tokenData = {
     client_id: ARENA_CLIENT_ID,
