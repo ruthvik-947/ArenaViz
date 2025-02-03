@@ -27,8 +27,8 @@ export class CardUtil extends BaseBoxShapeUtil<CardShape> {
     }
   }
 
-  component = (props: { shape: CardShape }): JSX.Element => {
-    const { title, description, imageUrl, w, h } = props.shape.props
+  component = (shape: CardShape): JSX.Element => {
+    const { title, description, imageUrl, w, h } = shape.props
 
     const containerStyle: React.CSSProperties = {
       width: w,
