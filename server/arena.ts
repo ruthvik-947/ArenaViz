@@ -16,7 +16,7 @@ export async function getArenaAuthUrl() {
     client_id: ARENA_CLIENT_ID!,
     redirect_uri: REDIRECT_URI,
     response_type: "code",
-    scope: "read write"  // Add explicit scope
+    scope: "read"  // Changed scope to only "read"
   });
 
   const authUrl = `${url.toString()}?${params.toString()}`;
